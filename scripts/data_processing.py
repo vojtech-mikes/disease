@@ -123,7 +123,13 @@ clean_smd.rename(
     inplace=True,
 )
 
-merged = pd.merge(clean_smd, weather, on="timestamp", how="left")
+grouped_smd = (
+    clean_smd.groupby(["timestamp", "fullbarcode"])
+    .mean(numeric_only=True)
+    .reset_index()
+)
+
+merged = pd.merge(grouped_smd, weather, on="timestamp", how="left")
 
 for column in merged:
     exceptions = ["fullbarcode", "barcode", "genotype", "timestamp"]
