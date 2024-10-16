@@ -101,6 +101,7 @@ clean_smd = smd.drop(
     columns=[
         "unit column",
         "unit row",
+        "Barcode",
         "treatment",
         "Pot",
         "Plants/pot",
@@ -132,7 +133,7 @@ grouped_smd = (
 merged = pd.merge(grouped_smd, weather, on="timestamp", how="left")
 
 for column in merged:
-    exceptions = ["fullbarcode", "barcode", "genotype", "timestamp"]
+    exceptions = ["fullbarcode", "genotype", "timestamp"]
 
     if column not in exceptions:
         merged[column] = merged[column].astype(float64)
@@ -142,3 +143,4 @@ merged = pd.merge(
 )
 
 merged.to_excel("results/dataset.xlsx", index=False)
+merged.to_parquet("results/dataset.parquet", index=False)
