@@ -8,9 +8,10 @@ grouped_dataset = dataset.groupby("fullbarcode", as_index=True).mean(
 
 grouped_dataset = grouped_dataset.dropna()
 
-measurement_vectors = grouped_dataset[
+measurement_vectors = grouped_dataset["pdi"].to_frame()
+
+state_vector = grouped_dataset[
     [
-        "pdi",
         "digital_biomass",
         "greenness_average",
         "leaf_area_index",
@@ -18,17 +19,6 @@ measurement_vectors = grouped_dataset[
         "ndvi_average",
         "npci_average",
         "psri_average",
-    ]
-]
-
-state_vector = grouped_dataset[
-    [
-        "max_temp",
-        "avg_temp",
-        "min_temp",
-        "max_humi",
-        "avg_humi",
-        "min_humi",
     ]
 ]
 
