@@ -3,8 +3,6 @@ from sqlalchemy import create_engine
 
 dataset = pd.read_parquet("results/dataset.parquet")
 
-dataset.info()
-
 state = dataset[
     [
         "timestamp",
@@ -32,8 +30,6 @@ control = dataset[
     ]
 ]
 
-dataset.info()
-
 measurement = dataset[
     [
         "timestamp",
@@ -42,15 +38,22 @@ measurement = dataset[
     ]
 ]
 
-measurement.info()
 
 barcodes = dataset[
     [
         "fullbarcode",
-        "plants/pot",
-        "treatment",
     ]
 ].drop_duplicates()
+
+barcode_info = dataset[
+    [
+        "fullbarcode",
+        "plants/pot",
+        "treatment",
+        "scale",
+        "leaves_observed",
+    ]
+]
 
 
 username = "root"
@@ -62,8 +65,11 @@ engine = create_engine(f"mysql+pymysql://{username}@{host}:{port}/{database}")
 
 # barcodes.to_sql("barcodes", con=engine, if_exists="append", index=False)
 
-state.to_sql("states", con=engine, if_exists="append", index=False)
+# barcode_info.to_sql("barcode_info", con=engine, if_exists="append", index=False)
 
-measurement.to_sql("measurements", con=engine, if_exists="append", index=False)
 
-control.to_sql("controls", con=engine, if_exists="append", index=False)
+# state.to_sql("states", con=engine, if_exists="append", index=False)
+
+# measurement.to_sql("measurements", con=engine, if_exists="append", index=False)
+
+# control.to_sql("controls", con=engine, if_exists="append", index=False)

@@ -101,8 +101,6 @@ clean_smd = smd.drop(
         "unit row",
         "Barcode",
         "Pot",
-        "Scale",
-        "Leaves_observed",
     ]
 )
 
