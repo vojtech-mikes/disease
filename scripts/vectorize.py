@@ -3,16 +3,12 @@ from sqlalchemy import create_engine
 
 dataset = pd.read_parquet("results/dataset.parquet")
 
-grouped_dataset = dataset.groupby("fullbarcode", as_index=True).mean(
-    numeric_only=True
-)
+dataset.info()
 
-grouped_dataset = grouped_dataset.dropna()
-
-measurement_vectors = grouped_dataset["pdi"].to_frame()
-
-state_vector = grouped_dataset[
+state = dataset[
     [
+        "timestamp",
+        "fullbarcode",
         "digital_biomass",
         "greenness_average",
         "leaf_area_index",
@@ -23,8 +19,10 @@ state_vector = grouped_dataset[
     ]
 ]
 
-control_vector = grouped_dataset[
+control = dataset[
     [
+        "timestamp",
+        "fullbarcode",
         "max_temp",
         "avg_temp",
         "min_temp",
@@ -34,14 +32,26 @@ control_vector = grouped_dataset[
     ]
 ]
 
+dataset.info()
 
-measurement_vectors.to_parquet("results/measurement_v.parquet")
-control_vector.to_parquet("results/control_v.parquet")
-state_vector.to_parquet("results/state_v.parquet")
+measurement = dataset[
+    [
+        "timestamp",
+        "fullbarcode",
+        "pdi",
+    ]
+]
 
-measurement_vectors.to_excel("results/measurement_v.xlsx")
-control_vector.to_excel("results/control_v.xlsx")
-state_vector.to_excel("results/state_v.xlsx")
+measurement.info()
+
+barcodes = dataset[
+    [
+        "fullbarcode",
+        "plants/pot",
+        "treatment",
+    ]
+].drop_duplicates()
+
 
 username = "root"
 host = "localhost"
@@ -50,10 +60,10 @@ database = "disease_prediction"
 
 engine = create_engine(f"mysql+pymysql://{username}@{host}:{port}/{database}")
 
-measurement_vectors = measurement_vectors.reset_index()
-control_vector = control_vector.reset_index()
-state_vector = state_vector.reset_index()
+# barcodes.to_sql("barcodes", con=engine, if_exists="append", index=False)
 
-measurement_vectors.to_sql("measurement", con=engine, index=True)
-control_vector.to_sql("control", con=engine, index=True)
-state_vector.to_sql("state", con=engine, index=True)
+state.to_sql("states", con=engine, if_exists="append", index=False)
+
+measurement.to_sql("measurements", con=engine, if_exists="append", index=False)
+
+control.to_sql("controls", con=engine, if_exists="append", index=False)

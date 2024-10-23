@@ -56,9 +56,7 @@ clean_planteye = planteye.drop(
     ]
 )
 
-clean_planteye = clean_planteye.map(
-    lambda x: x.lower() if isinstance(x, str) else x
-)
+clean_planteye = clean_planteye.map(lambda x: x.lower() if isinstance(x, str) else x)
 
 clean_planteye.rename(
     columns={
@@ -102,9 +100,7 @@ clean_smd = smd.drop(
         "unit column",
         "unit row",
         "Barcode",
-        "treatment",
         "Pot",
-        "Plants/pot",
         "Scale",
         "Leaves_observed",
     ]
@@ -124,8 +120,9 @@ clean_smd.rename(
     inplace=True,
 )
 
+
 grouped_smd = (
-    clean_smd.groupby(["timestamp", "fullbarcode"])
+    clean_smd.groupby(["timestamp", "fullbarcode", "treatment"])
     .mean(numeric_only=True)
     .reset_index()
 )
@@ -133,14 +130,12 @@ grouped_smd = (
 merged = pd.merge(grouped_smd, weather, on="timestamp", how="left")
 
 for column in merged:
-    exceptions = ["fullbarcode", "genotype", "timestamp"]
+    exceptions = ["fullbarcode", "genotype", "timestamp", "treatment"]
 
     if column not in exceptions:
         merged[column] = merged[column].astype(float64)
 
-merged = pd.merge(
-    merged, grouped_planteye, on=["timestamp", "fullbarcode"], how="left"
-)
+merged = pd.merge(merged, grouped_planteye, on=["timestamp", "fullbarcode"], how="left")
 
 merged.to_excel("results/dataset.xlsx", index=False)
 merged.to_parquet("results/dataset.parquet", index=False)
